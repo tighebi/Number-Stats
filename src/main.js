@@ -71,55 +71,56 @@ out.addEventListener('click', (ev) => {
 });
 
 // Empty templates (now render DOM sections)
+// Updated so labels match what analyze/render functions produce
 function showEmptyStats() {
   out.innerHTML = '';
   out.classList.remove('success','error');
   if (mode === 'compare') {
-    // Comparison first
+    // Comparison first (labels match renderCompare)
     out.appendChild(createSection('Comparison', 
-`GCD: 
-LCM: 
-Common Divisors: 
+`GCD (integers): 
+LCM (integers): 
+Common Divisors (of GCD): 
 Relatively Prime: 
 Shared Prime Factors: `));
     out.appendChild(createSection('Arithmetic', 
 `Sum: 
 Product: 
-Difference: 
+Difference (n1 - n2): 
 Absolute Difference: 
 Ratio (n1 / n2): 
 Which is larger: 
 Average: `));
-    out.appendChild(createSection('Integer relations', `Integer relations: `));
-    // then individuals (marked individual)
-    out.appendChild(createSection('First Number', 
-`Number: 
-Binary: 
-Hex: 
-Square: 
-Square Root: 
-Is Even: 
-Is Prime: 
-Factors: `, { individual: true }));
-    out.appendChild(createSection('Second Number', 
-`Number: 
-Binary: 
-Hex: 
-Square: 
-Square Root: 
-Is Even: 
-Is Prime: 
-Factors: `, { individual: true }));
+    out.appendChild(createSection('Integer relations', `No direct integer multiple`));
+    // then individuals (labels match analyzeNumberToString output)
+    const individualTemplate = 
+`Input: 
+Number: 
+Type: 
+Sign: 
+Parity: 
+Prime: 
+Factors: 
+Prime factors: 
+Divisor classification: 
+Digit count (excluding decimal point): 
+Digit sum: `;
+    out.appendChild(createSection('First Number', individualTemplate, { individual: true }));
+    out.appendChild(createSection('Second Number', individualTemplate, { individual: true }));
   } else {
+    // Single mode: labels match analyzeNumberToString
     out.appendChild(createSection('Number', 
-`Number: 
-Binary: 
-Hex: 
-Square: 
-Square Root: 
-Is Even: 
-Is Prime: 
-Factors: `, { individual: true }));
+`Input: 
+Number: 
+Type: 
+Sign: 
+Parity: 
+Prime: 
+Factors: 
+Prime factors: 
+Divisor classification: 
+Digit count (excluding decimal point): 
+Digit sum: `, { individual: true }));
   }
 }
 
