@@ -94,10 +94,44 @@ h1 {
   margin-bottom: 30px;
 }
 
-.controls{display:flex;gap:12px;margin:18px 0}
+/* Tabs for switching Single / Compare */
+.tabs {
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:14px;
+  z-index:3;
+}
+.tab{
+  background: var(--panel);
+  border: 3px solid transparent;
+  padding:8px 12px;
+  color: var(--muted);
+  cursor:pointer;
+  font-family: var(--mono);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  border-radius:8px;
+  transition: all 0.12s ease;
+}
+.tab.active{
+  color:var(--accent);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0,255,255,0.06);
+}
 
-input#numberInput {
-  width: 100%;
+/* Controls layout for compare mode */
+.controls {
+  display:flex;
+  gap:12px;
+  margin:18px 0;
+  align-items:center;
+}
+
+/* Base input styles (apply to both inputs) */
+.controls input#numberInput1,
+.controls input#numberInput2 {
   padding: 20px;
   background: #000;
   border: 4px solid var(--neon-cyan);
@@ -111,50 +145,48 @@ input#numberInput {
     inset 0 0 0 2px #000,
     inset 0 0 20px rgba(0,255,255,0.2);
   transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 
-      inset 0 0 0 2px #000,
-      inset 0 0 20px rgba(255,255,0,0.2),
-      0 0 20px rgba(255,255,0,0.2);
-  }
+  image-rendering: pixelated;
+  /* ensure consistent minimum height so the button can match it */
+  min-height: 64px;
+  box-sizing: border-box;
 }
 
-pre#output {
-  margin-top: 30px;
-  padding: 30px;
-  background: #000;
-  color: var(--neon-cyan);
-  border: 4px solid var(--neon-cyan);
-  font-size: 14px;
-  line-height: 1.6;
-  min-height: 200px;
+/* Focus state */
+.controls input#numberInput1:focus,
+.controls input#numberInput2:focus {
+  outline: none;
+  border-color: var(--accent);
   box-shadow: 
     inset 0 0 0 2px #000,
-    inset 0 0 20px rgba(0,255,255,0.1);
-  image-rendering: pixelated;
+    inset 0 0 20px rgba(255,255,0,0.2),
+    0 0 20px rgba(255,255,0,0.2);
 }
 
-/* focus styles for keyboard users */
-input#numberInput:focus, button#goBtn:focus{outline:3px solid rgba(0,240,255,0.08);outline-offset:4px}
+/* Default / single mode: first input fills space, second hidden */
+.controls input#numberInput1 { flex: 1; display: block; }
+.controls input#numberInput2 { display: none; }
 
-@media (max-width:560px){#app{margin:18px;padding:16px}h1{font-size:14px}button#goBtn{padding:10px 12px}}
-
-/* helper classes for background layers */
-.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
-
-pre#output.success {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 20px var(--neon-cyan);
+/* Compare mode: show both inputs and share space */
+.controls.compare input#numberInput1,
+.controls.compare input#numberInput2 {
+  display: block;
+  flex: 1 1 0;
 }
 
-pre#output.error {
-  border-color: var(--neon-pink);
-  box-shadow: 0 0 20px var(--neon-pink);
+/* Make the analyze button vertically align with inputs and be symmetrical */
+.controls button#goBtn {
+  /* match inputs' min height so it's visually aligned */
+  min-height: 64px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* keep vertical padding so the button retains its neon look */
+  padding: 20px 30px;
+  box-sizing: border-box;
 }
 
+/* base styles for the analyze button (valid CSS, not nested SCSS) */
 button#goBtn {
   padding: 20px 30px;
   background: var(--panel);
@@ -169,18 +201,136 @@ button#goBtn {
     inset 0 0 20px rgba(255,0,255,0.2);
   transition: all 0.2s ease;
   image-rendering: pixelated;
-
-  &:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 
-      inset 0 0 0 2px #000,
-      inset 0 0 20px rgba(255,255,0,0.2),
-      0 0 20px rgba(255,255,0,0.2);
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
 }
+
+/* hover / active states (valid selectors) */
+button#goBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 
+    inset 0 0 0 2px #000,
+    inset 0 0 20px rgba(255,255,0,0.2),
+    0 0 20px rgba(255,255,0,0.2);
+  transform: translateY(-2px);
+}
+
+button#goBtn:active {
+  transform: translateY(1px);
+}
+
+/* small screen adjustments */
+@media (max-width:560px){
+  .controls{flex-direction:column;gap:8px}
+  .controls.compare{flex-direction:column}
+  button#goBtn{width:100%}
+}
+
+/* output container (replaces previous pre#output) */
+.output {
+  margin-top: 30px;
+  padding: 24px;
+  background: #000;
+  color: var(--neon-cyan);
+  border: 4px solid var(--neon-cyan);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 360px;
+  box-shadow: 
+    inset 0 0 0 2px #000,
+    inset 0 0 20px rgba(0,255,255,0.1);
+  image-rendering: pixelated;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  white-space: normal;
+}
+
+/* Collapsible section */
+.section {
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* header area with toggle and title */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px; /* tightened from 10px */
+  background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05));
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.section-header h3 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--accent);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* small +/- toggle button */
+.section-toggle {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background: var(--panel);
+  color: var(--neon-cyan);
+  font-family: var(--mono);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px #000, inset 0 0 12px rgba(0,255,255,0.06);
+}
+.section-toggle[aria-expanded="false"] {
+  color: var(--muted);
+  border-color: transparent;
+}
+
+/* body area (contains pre block for monospace formatting) */
+.section-body {
+  padding: 8px 14px; /* tightened top/bottom from 14px */
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--neon-cyan);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: transparent;
+}
+
+/* remove awkward default pre margin inside bodies */
+.section-body pre {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* larger/denser styling for individual number analysis */
+.section.individual .section-body {
+  font-size: 18px;
+  padding: 12px 16px;
+  line-height: 1.9;
+}
+
+/* success / error outlines remain using .output parent */
+.output.success { border-color: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); }
+.output.error { border-color: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
+
+/* responsive adjustments */
+@media (max-width:560px){
+  .output { min-height: 260px; padding: 16px; font-size: 14px; }
+  .section-header h3 { font-size: 12px; }
+  .section-toggle{ width:26px; height:26px; min-width:26px; font-size:12px }
+}
+
+/* helper classes for background layers */
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}

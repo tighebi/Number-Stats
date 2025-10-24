@@ -20,11 +20,21 @@
 
     <div id="app">
       <h1>Number Stats</h1>
+
+      <!-- Tabs to switch modes -->
+      <div class="tabs" role="tablist" aria-label="Mode">
+        <button id="tabSingle" class="tab active" role="tab" aria-selected="true">Single</button>
+        <button id="tabCompare" class="tab" role="tab" aria-selected="false">Compare</button>
+      </div>
+
       <div class="controls">
-        <input id="numberInput" placeholder="Enter a number" />
+        <input id="numberInput1" placeholder="Enter first number" />
+        <input id="numberInput2" placeholder="Enter second number" />
         <button id="goBtn" type="button">ANALYZE</button>
       </div>
-      <pre id="output"></pre>
+
+      <!-- changed: structured output container (was a <pre>) -->
+      <div id="output" class="output" role="region" aria-live="polite"></div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>
