@@ -40,7 +40,8 @@ function createSection(title, contentStr, opts = {}) {
   toggle.setAttribute('aria-expanded', 'true');
   toggle.setAttribute('type', 'button');
   toggle.setAttribute('aria-label', `Toggle ${title}`);
-  // visual content handled by CSS ::after
+  // show explicit text rather than relying on CSS ::after
+  toggle.textContent = '-';
 
   const h = document.createElement('h3');
   h.textContent = title;
@@ -66,7 +67,10 @@ out.addEventListener('click', (ev) => {
   if (!btn) return;
   const section = btn.closest('.section');
   const expanded = btn.getAttribute('aria-expanded') === 'true';
+  // toggle aria state
   btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  // toggle visible text
+  btn.textContent = expanded ? '+' : '-';
   section.classList.toggle('collapsed', expanded);
 });
 
