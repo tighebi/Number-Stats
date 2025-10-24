@@ -21,6 +21,19 @@ function render(value) {
   }
 }
 
+function showEmptyStats() {
+  const output = document.getElementById('output');
+  output.textContent = `Number: 
+Binary: 
+Hex: 
+Square: 
+Square Root: 
+Is Even: 
+Is Prime: 
+Factors: 
+`;
+}
+
 // Unified analyze function
 function handleAnalyze() {
   render(input.value);
@@ -33,5 +46,5 @@ input.addEventListener('keyup', e => {
 });
 
 // Initial setup
-render('42');
+showEmptyStats();
 input.focus();
