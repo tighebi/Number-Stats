@@ -181,9 +181,41 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* remove vertical padding (height determined by min-height) and keep horizontal padding */
-  padding: 0 30px;
+  /* keep vertical padding so the button retains its neon look */
+  padding: 20px 30px;
   box-sizing: border-box;
+}
+
+/* base styles for the analyze button (valid CSS, not nested SCSS) */
+button#goBtn {
+  padding: 20px 30px;
+  background: var(--panel);
+  border: 4px solid var(--neon-pink);
+  color: var(--neon-pink);
+  font-family: var(--mono);
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 0 0 2px #000,
+    inset 0 0 20px rgba(255,0,255,0.2);
+  transition: all 0.2s ease;
+  image-rendering: pixelated;
+}
+
+/* hover / active states (valid selectors) */
+button#goBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 
+    inset 0 0 0 2px #000,
+    inset 0 0 20px rgba(255,255,0,0.2),
+    0 0 20px rgba(255,255,0,0.2);
+  transform: translateY(-2px);
+}
+
+button#goBtn:active {
+  transform: translateY(1px);
 }
 
 /* small screen adjustments */

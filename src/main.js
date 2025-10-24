@@ -143,9 +143,73 @@ function renderSingle(value) {
   }
 }
 
+// --- ADDED helpers (fixes errors in compare mode) ---
+function safeNumber(v) {
+  const n = Number(v);
+  if (Number.isNaN(n)) throw new Error('Invalid number');
+  return n;
+}
+
+function gcd(a, b) {
+  let x = Math.abs(Math.trunc(a));
+  let y = Math.abs(Math.trunc(b));
+  if (x === 0) return y;
+  if (y === 0) return x;
+  while (y) {
+    const t = x % y;
+    x = y;
+    y = t;
+  }
+  return x;
+}
+
+function lcm(a, b) {
+  const x = Math.abs(Math.trunc(a));
+  const y = Math.abs(Math.trunc(b));
+  if (x === 0 || y === 0) return 0;
+  return Math.abs((x / gcd(x, y)) * y);
+}
+
+function getDivisors(n) {
+  const m = Math.abs(Math.trunc(n));
+  if (m === 0) return [];
+  const divs = new Set();
+  for (let i = 1; i <= Math.floor(Math.sqrt(m)); i++) {
+    if (m % i === 0) {
+      divs.add(i);
+      divs.add(m / i);
+    }
+  }
+  return Array.from(divs).sort((a,b)=>a-b);
+}
+
+function primeFactors(n) {
+  let m = Math.abs(Math.trunc(n));
+  if (m < 2) return [];
+  const res = [];
+  for (let p = 2; p * p <= m; p++) {
+    while (m % p === 0) {
+      res.push(p);
+      m = Math.trunc(m / p);
+    }
+  }
+  if (m > 1) res.push(m);
+  return Array.from(new Set(res));
+}
+
+function formatArray(arr) {
+  if (!arr || arr.length === 0) return '-';
+  return arr.join(', ');
+}
+// --- END added helpers ---
+
 // renderCompare: append individual analyses with individual flag
 function renderCompare(v1, v2) {
   try {
+    // Clear any previous states
+    out.innerHTML = '';
+    out.classList.remove('success', 'error');
+
     if ((v1 === '' || v1 == null) && (v2 === '' || v2 == null)) {
       showEmptyStats();
       return;
@@ -161,17 +225,21 @@ function renderCompare(v1, v2) {
     const n1 = safeNumber(v1);
     const n2 = safeNumber(v2);
 
-    const text1 = analyzeNumberToString(n1).trim();
-    const text2 = analyzeNumberToString(n2).trim();
+    // Get individual analyses first to catch any potential errors
+    const text1 = analyzeNumberToString(n1);
+    const text2 = analyzeNumberToString(n2);
 
+    // integer-based comparisons (use integer truncation)
     const i1 = Math.trunc(n1);
     const i2 = Math.trunc(n2);
-    const g = gcd(n1, n2);
-    const l = lcm(n1, n2);
+    const g = gcd(i1, i2);
+    const l = lcm(i1, i2);
     const divsG = getDivisors(g);
     const pf1 = primeFactors(i1);
     const pf2 = primeFactors(i2);
     const sharedPrime = pf1.filter(x => pf2.includes(x));
+    
+    // Compute remaining stats
     const sum = n1 + n2;
     const product = n1 * n2;
     const diff = n1 - n2;
@@ -184,9 +252,7 @@ function renderCompare(v1, v2) {
     const relativelyPrime = (g === 1) ? 'Yes' : 'No';
     const commonDivsText = divsG.length ? divsG.join(', ') : '-';
 
-    out.innerHTML = '';
-
-    // Comparison / arithmetic / relations sections first
+    // Render sections
     out.appendChild(createSection('Comparison',
 `GCD (integers): ${g}
 LCM (integers): ${l}
@@ -203,11 +269,11 @@ Ratio (n1 / n2): ${ratio}
 Which is larger: ${larger}
 Average: ${average}`));
 
-    out.appendChild(createSection('Integer relations', `${isMultiple}`));
+    out.appendChild(createSection('Integer relations', isMultiple));
 
-    // Individual analyses at the bottom (larger)
-    out.appendChild(createSection('First Number', text1, { individual: true }));
-    out.appendChild(createSection('Second Number', text2, { individual: true }));
+    // Individual analyses at the bottom
+    out.appendChild(createSection('First Number', text1.trim(), { individual: true }));
+    out.appendChild(createSection('Second Number', text2.trim(), { individual: true }));
 
     out.classList.add('success');
     setTimeout(() => out.classList.remove('success'), 500);
