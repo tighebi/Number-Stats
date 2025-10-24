@@ -1,0 +1,25 @@
+{
+  "name": "number-stats-web",
+  "version": "1.0.0",
+  "description": "CLI tool that prints statistics about a number",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cli": "node src/index.js"
+  },
+  "keywords": [
+    "numbers",
+    "cli",
+    "statistics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12"
+  },
+  "devDependencies": {
+    "vite": "^7.1.11"
+  }
+}

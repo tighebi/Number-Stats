@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Number Stats</title>
+    <link rel="stylesheet" href="/src/style.css">
+  </head>
+  <body>
+    <div class="bg-wrap" aria-hidden="true">
+      <div class="stars"></div>
+      <div class="grid">
+        <div class="plane front"></div>
+        <div class="plane mid"></div>
+        <div class="plane back"></div>
+      </div>
+      <div class="scanlines"></div>
+      <div class="vignette"></div>
+    </div>
+
+    <div id="app">
+      <h1>Number Stats</h1>
+      <div class="controls">
+        <input id="numberInput" placeholder="Enter a number" />
+        <button id="goBtn" type="button">ANALYZE</button>
+      </div>
+      <pre id="output"></pre>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
