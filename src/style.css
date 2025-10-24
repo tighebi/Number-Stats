@@ -124,9 +124,16 @@ h1 {
 /* Controls layout for compare mode */
 .controls {
   display:flex;
-  gap:12px;
+  gap:8px; /* tightened so items are more compact and centered */
   margin:18px 0;
   align-items:center;
+}
+
+/* ensure inputs behave nicely when space is constrained */
+.controls.compare input#numberInput1,
+.controls.compare input#numberInput2 {
+  display: block;
+  flex: 1 1 auto; /* allow inputs to shrink/grow evenly */
 }
 
 /* Base input styles (apply to both inputs) */
@@ -170,20 +177,28 @@ h1 {
 .controls.compare input#numberInput1,
 .controls.compare input#numberInput2 {
   display: block;
-  flex: 1 1 0;
+  flex: 1 1 auto; /* allow inputs to shrink/grow evenly */
 }
 
 /* Make the analyze button vertically align with inputs and be symmetrical */
 .controls button#goBtn {
-  /* match inputs' min height so it's visually aligned */
-  min-height: 64px;
+  /* don't let the button grow to fill space */
+  flex: 0 0 auto;
   align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* keep vertical padding so the button retains its neon look */
-  padding: 20px 30px;
+  /* smaller footprint so it lines up with two inputs */
+  padding: 12px 18px;
+  min-width: 100px;
   box-sizing: border-box;
+  font-size: 13px;
+}
+
+/* keep a slightly smaller button in compare mode explicitly (if needed) */
+.controls.compare button#goBtn {
+  padding: 10px 16px;
+  min-width: 96px;
 }
 
 /* base styles for the analyze button (valid CSS, not nested SCSS) */
@@ -222,7 +237,7 @@ button#goBtn:active {
 @media (max-width:560px){
   .controls{flex-direction:column;gap:8px}
   .controls.compare{flex-direction:column}
-  button#goBtn{width:100%}
+  .controls button#goBtn{width:100%; min-width: unset}
 }
 
 /* output container (replaces previous pre#output) */
