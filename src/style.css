@@ -304,6 +304,12 @@ button#goBtn:active {
   cursor: pointer;
   box-shadow: inset 0 0 0 2px #000, inset 0 0 12px rgba(0,255,255,0.06);
 }
+
+/* collapsed state hides body */
+.section.collapsed .section-body { display: none; }
+
+/* remove usage of ::after for +/- — JS sets the visible text */
+/* keep visual differences when collapsed via color */
 .section-toggle[aria-expanded="false"] {
   color: var(--muted);
   border-color: transparent;
@@ -349,3 +355,15 @@ button#goBtn:active {
 
 /* helper classes for background layers */
 .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* Interactive canvas: full-viewport, sits between background (z=0) and app (z=2) */
+.interactive-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;                  /* behind #app (z-index:2) but above background layers */
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;        /* allow clicks to pass through to UI */
+  mix-blend-mode: screen;      /* makes neon-like effects blend nicely */
+}
