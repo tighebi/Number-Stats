@@ -355,3 +355,15 @@ button#goBtn:active {
 
 /* helper classes for background layers */
 .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* Interactive canvas: full-viewport, sits between background (z=0) and app (z=2) */
+.interactive-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;                  /* behind #app (z-index:2) but above background layers */
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;        /* allow clicks to pass through to UI */
+  mix-blend-mode: screen;      /* makes neon-like effects blend nicely */
+}

@@ -310,3 +310,160 @@ btn.addEventListener('click', handleAnalyze);
 // Initial state
 setMode('single');
 input1.focus();
+
+/* Interactive background: particles + cursor interaction (random wander + repulsion) */
+function initInteractiveBackground() {
+  const canvas = document.getElementById('interactiveBg');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w = 0, h = 0;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const particles = [];
+  // scale particle count with viewport area (kept modest)
+  const PARTICLE_COUNT = Math.max(40, Math.round(Math.min(240, (w * h) / 80000)));
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: rand(-0.8, 0.8),  // doubled initial velocity
+      vy: rand(-0.8, 0.8),  // doubled initial velocity
+      size: rand(1.5, 3.5),
+      hue: rand(170, 300),
+      life: Infinity,
+      jitter: Math.random() * 1000
+    });
+  }
+
+  const mouse = { x: null, y: null, moved: false };
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    mouse.moved = true;
+  });
+
+  document.addEventListener('mouseleave', () => {
+    mouse.moved = false;
+    mouse.x = null;
+    mouse.y = null;
+  });
+
+  // Click bursts remain the same
+  document.addEventListener('click', (e) => {
+    const cx = e.clientX, cy = e.clientY;
+    for (let i = 0; i < 24; i++) {
+      particles.push({
+        x: cx,
+        y: cy,
+        vx: Math.cos((i / 24) * Math.PI * 2) * rand(1, 4) + rand(-0.5, 0.5),
+        vy: Math.sin((i / 24) * Math.PI * 2) * rand(1, 4) + rand(-0.5, 0.5),
+        size: rand(2.5, 5.5),
+        hue: rand(160, 320),
+        life: 80 + Math.floor(rand(0, 60)),
+        jitter: Math.random() * 1000
+      });
+    }
+  }, { passive: true });
+
+  let t = 0;
+  function step() {
+    t += 0.016;
+    ctx.fillStyle = 'rgba(0,0,0,0.14)';  // slightly less trail
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+
+      // increased random movement
+      const jitterForce = 0.12;  // doubled
+      p.vx += (Math.cos((t + p.jitter) * 0.8) * 0.5) * jitterForce;
+      p.vy += (Math.sin((t + p.jitter) * 1.0) * 0.5) * jitterForce;
+
+      // stronger magnetic-like repulsion
+      if (mouse.x != null && mouse.moved) {
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist2 = dx * dx + dy * dy + 0.001;
+        // much stronger force at close range
+        const force = Math.min(8.0, 250000 / (dist2 + 400));
+        const invDist = 1 / Math.sqrt(dist2);
+        // increased base repulsion strength
+        const fx = (dx * invDist) * force * 0.006;
+        const fy = (dy * invDist) * force * 0.006;
+        p.vx += fx;
+        p.vy += fy;
+      }
+
+      // increased random jitter
+      p.vx += rand(-0.02, 0.02);
+      p.vy += rand(-0.02, 0.02);
+
+      // less dampening for more energetic movement
+      p.vx *= 0.975;
+      p.vy *= 0.975;
+
+      // move
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // gentle wrap
+      if (p.x < -40) p.x = w + 40;
+      if (p.x > w + 40) p.x = -40;
+      if (p.y < -40) p.y = h + 40;
+      if (p.y > h + 40) p.y = -40;
+
+      // life decay for click particles
+      if (p.life !== Infinity) {
+        p.life--;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+      }
+
+      // draw glow
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 8);
+      g.addColorStop(0, `hsla(${p.hue},100%,70%,0.85)`);
+      g.addColorStop(0.2, `hsla(${p.hue},100%,65%,0.45)`);
+      g.addColorStop(0.7, `hsla(${p.hue},100%,55%,0.06)`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // core
+      ctx.fillStyle = `hsla(${p.hue},100%,70%,0.95)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // if mouse moved recently, set a short timeout to mark idle (reduce repulsion)
+    if (mouse.moved) {
+      clearTimeout(window._interactiveMouseTimer);
+      window._interactiveMouseTimer = setTimeout(() => { mouse.moved = false; }, 160);
+    }
+
+    // limit particle count
+    if (particles.length > 800) {
+      particles.splice(0, particles.length - 800);
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
+// initialize interactive background after DOM ready (module runs at end so DOM exists)
+initInteractiveBackground();
